@@ -1,3 +1,8 @@
+pub mod rid_generator;
+mod bits_allocator;
+mod worker;
+
+
 #[cfg(test)]
 mod tests {
     #[test]

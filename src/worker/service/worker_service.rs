@@ -4,12 +4,12 @@ use rbatis::rbatis::Rbatis;
 use crate::worker::dao::worker_dao;
 use crate::worker::model::worker_node;
 
-pub struct WorkerService{
+pub struct WorkerService {
     worker_dao: worker_dao::WorkerDao,
 }
 
 impl WorkerService {
-    pub fn new(RB: &Rbatis) -> Self {
+    pub fn new(RB: Rbatis) -> Self {
         Self { worker_dao: worker_dao::WorkerDao::new(RB)  }
     }
 

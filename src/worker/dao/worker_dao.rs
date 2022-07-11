@@ -6,12 +6,12 @@ use crate::model::miner::Miners;
 use crate::worker::model::worker_node;
 use rbatis::Error;
 
-pub struct WorkerDao{
+pub struct WorkerDao {
     RB: Rbatis,
 }
 
 impl WorkerDao {
-    pub fn new(RB: &Rbatis) -> Self {
+    pub fn new(RB: Rbatis) -> Self {
         WorkerDao {RB}
     }
 

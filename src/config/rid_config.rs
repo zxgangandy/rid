@@ -2,10 +2,10 @@ use rbatis::rbatis::Rbatis;
 
 pub trait  UidConfig {
 // GetDB get db handler
-    fn GetDB(&self)-> &Rbatis;
+    fn GetDB(&self)-> Rbatis;
 
 // GetPort get port
-    fn GetPort(&self) -> &String;
+    fn GetPort(&self) -> String;
 
 // GetTimeBits get time bits
     fn GetTimeBits(&self) -> i32;
@@ -53,12 +53,12 @@ fn new(db: Rbatis, port: String)-> &DefaultUidConfig {
 }
 
 impl UidConfig for DefaultUidConfig {
-    fn GetDB(&self) -> &Rbatis {
-        return &self.DB
+    fn GetDB(&self) -> Rbatis {
+        return self.DB.clone()
     }
 
-    fn GetPort(&self) -> &String {
-        return &self.Port
+    fn GetPort(&self) -> String {
+        return self.Port.clone()
     }
 
     fn GetTimeBits(&self) -> i32 {

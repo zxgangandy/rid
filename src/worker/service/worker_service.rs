@@ -1,4 +1,6 @@
 use rbatis::Error;
+use rbatis::rbatis::Rbatis;
+
 use crate::worker::dao::worker_dao;
 use crate::worker::model::worker_node;
 
@@ -7,8 +9,8 @@ pub struct WorkerService{
 }
 
 impl WorkerService {
-    pub fn new(worker_dao: worker_dao::WorkerDao) -> Self {
-        Self { worker_dao }
+    pub fn new(RB: &Rbatis) -> Self {
+        Self { worker_dao: worker_dao::WorkerDao::new(RB)  }
     }
 
     pub async fn save(&self, w: worker_node::WorkerNode) -> Result<bool, Error> {

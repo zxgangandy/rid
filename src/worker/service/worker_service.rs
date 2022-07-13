@@ -1,5 +1,4 @@
 use std::sync::Arc;
-
 use rbatis::Error;
 use rbatis::rbatis::Rbatis;
 

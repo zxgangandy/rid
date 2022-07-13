@@ -1,12 +1,13 @@
 use std::sync::{Arc, Mutex};
 use std::time::{SystemTime, UNIX_EPOCH};
 use rbatis::rbatis::Rbatis;
+
 use crate::worker::worker_assigner;
 use crate::bits_allocator;
 use crate::config::rid_config;
 use crate::config::rid_config::UidConfig;
 
-struct DefaultUidGenerator {
+struct UidGenerator {
     worker_id_assigner: worker_assigner::Assigner,
     bits_allocator:  bits_allocator::BitsAllocator,
     config:          rid_config::DefaultUidConfig,
@@ -15,66 +16,84 @@ struct DefaultUidGenerator {
     sequence :       i64,
 }
 
-
-impl DefaultUidGenerator {
+impl UidGenerator {
     //New create the default uid generator instance
-    pub  async fn new(config: rid_config::DefaultUidConfig, RB: Rbatis) -> Self {
-        let idAssigner = worker_assigner::Assigner::new(config.clone(), RB);
+    pub  async fn new(config: rid_config::DefaultUidConfig, rb: Arc<Rbatis>) -> Self {
+        let id_assigner = worker_assigner::Assigner::new(config.clone(), Arc::clone(&rb));
         let allocator = bits_allocator::BitsAllocator::new(
             config.get_time_bits(),
             config.get_worker_bits(),
             config.get_seq_bits()
         );
-        let mut workerId = idAssigner.assign_worker_id().await;
+        let mut worker_id = id_assigner.assign_worker_id().await;
 
-        if workerId > allocator.max_worker_id {
-            workerId = workerId % allocator.max_worker_id
+        if worker_id > allocator.max_worker_id {
+            worker_id = worker_id % allocator.max_worker_id
         }
 
-        return DefaultUidGenerator {
-            worker_id_assigner: idAssigner,
+        return UidGenerator {
+            worker_id_assigner: id_assigner,
             bits_allocator: allocator,
             config,
-            worker_id: workerId,
+            worker_id,
             last_second: Arc::new(Mutex::new(0)),
             sequence: 0,
         }
     }
 
-    // GetUID generate the unique id
-    pub fn GetUID(& mut self) -> i64 {
+    // get_uid generate the unique id
+    pub fn get_uid(& mut self) -> i64 {
         let c = &self.config;
-        return self.nextId(c.get_epoch_seconds(), c.get_max_backward_seconds(), c.enable_backward())
+        return self.next_id(c.get_epoch_seconds(), c.get_max_backward_seconds(), c.enable_backward())
     }
 
+    // parse_uid parse the generated unique id then get the meta information
+    // +------+----------------------+----------------+-----------+
+    // | sign |     delta seconds    | worker node id | sequence  |
+    // +------+----------------------+----------------+-----------+
+    //   1bit          30bits              7bits         13bits
+    fn parse_uid(&self, uid: i64) -> string {
+        let total_bits = bits_allocator::TOTAL_BITS;
+        let sign_bits = self.bits_allocator.sign_bits;
+        let timestamp_bits = self.bits_allocator.timestamp_bits;
+        let worker_id_bits = self.bits_allocator.worker_id_bits;
+        let sequence_bits = self.bits_allocator.sequence_bits;
 
-    fn  nextId(& mut self, epochSeconds: i64, maxBackwardSeconds: i64, enableBackward: bool) -> i64 {
-        // g.mutex.Lock()
-        // defer g.mutex.Unlock()
+        // parse UID
+        let sequence = (uid << (total_bits - sequence_bits)) >> (total_bits - sequence_bits);
+        let worker_id = (uid << (timestamp_bits + sign_bits)) >> (total_bits - worker_id_bits);
+        let delta_seconds = uid >> (worker_id_bits + sequence_bits);
+
+        // format as string
+        return format!(r#"{{"uid\":\"{}\",\"timestamp\":\"{}\",\"worker_id\":\"{}\",\"sequence\":\"{}\"}}"#,
+                       uid, self.config.get_epoch_seconds() + delta_seconds, worker_id, sequence);
+    }
+
+    fn next_id(& mut self, epoch_seconds: i64, max_backward_seconds: i64, enable_backward: bool) -> i64 {
         let mut last_second = self.last_second.lock().unwrap();
-        let mut  currentSecond = self.get_current_second(epochSeconds);
+        let mut current_second = self.get_current_second(epoch_seconds);
 
-        if currentSecond < *last_second {
-            let refusedSeconds  = *last_second - currentSecond;
-            if !enableBackward {
+        if current_second < *last_second {
+            let refused_seconds = *last_second - current_second;
+            if !enable_backward {
                 panic!("Clock moved backwards. Refusing seconds");
             }
 
-            if refusedSeconds <= maxBackwardSeconds {
-                while currentSecond < *last_second {
-                    currentSecond = self.get_current_second(epochSeconds)
+            if refused_seconds <= max_backward_seconds {
+                while current_second < *last_second {
+                    current_second = self.get_current_second(epoch_seconds)
                 }
             } else {
                 panic!("Clock moved backwards. Refused seconds bigger than max backward seconds")
             }
         }
 
-            // At the same second, increase sequence
-        if currentSecond == *last_second {
+        // At the same second, increase sequence
+        if current_second == *last_second {
             self.sequence = (self.sequence + 1) & self.bits_allocator.max_sequence;
             // Exceed the max sequence, we wait the next second to generate uid
             if self.sequence == 0 {
-                currentSecond = self.getNextSecond(*last_second, epochSeconds);
+                current_second = self.get_next_second(*last_second, epoch_seconds);
             }
 
             // At the different second, sequence restart from zero
@@ -82,10 +101,10 @@ impl DefaultUidGenerator {
             self.sequence = 0;
         }
 
-        *last_second = currentSecond;
+        *last_second = current_second;
 
         // Allocate bits for UID
-        return self.bits_allocator.allocate(currentSecond-epochSeconds, self.worker_id, self.sequence);
+        return self.bits_allocator.allocate(current_second - epoch_seconds, self.worker_id, self.sequence);
     }
 
     fn get_current_second(&self, epoch_seconds: i64) -> i64 {
@@ -97,8 +116,7 @@ impl DefaultUidGenerator {
         return current_seconds
     }
 
-
-    fn getNextSecond(&self, last_timestamp: i64, epoch_seconds: i64) ->i64 {
+    fn get_next_second(&self, last_timestamp: i64, epoch_seconds: i64) ->i64 {
         let mut timestamp = self.get_current_second(epoch_seconds);
 
         while timestamp <= last_timestamp {
@@ -110,28 +128,7 @@ impl DefaultUidGenerator {
 
 }
 
-// ParseUID parse the generated unique id then get the meta information
-// +------+----------------------+----------------+-----------+
-// | sign |     delta seconds    | worker node id | sequence  |
-// +------+----------------------+----------------+-----------+
-//   1bit          30bits              7bits         13bits
-// func (g *DefaultUidGenerator) ParseUID(uid int64) string {
-// totalBits := (uint32)(TotalBits)
-// signBits := g.bits_allocator.signBits
-// timestampBits := g.bits_allocator.timestampBits
-// workerIdBits := g.bits_allocator.workerIdBits
-// sequenceBits := g.bits_allocator.sequenceBits
-// 
-// // parse UID
-// sequence := (uid << (totalBits - sequenceBits)) >> (totalBits - sequenceBits)
-// worker_id := (uid << (timestampBits + signBits)) >> (totalBits - workerIdBits)
-// deltaSeconds := uid >> (workerIdBits + sequenceBits)
-// 
-// // format as string
-// return fmt.Sprintf("{\"UID\":\"%d\",\"timestamp\":\"%d\",\"worker_id\":\"%d\",\"sequence\":\"%d\"}",
-// uid, g.config.GetEpochSeconds()+deltaSeconds, worker_id, sequence)
-// }
-// }
+
 
 
 

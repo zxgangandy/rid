@@ -1,5 +1,5 @@
 
-const TOTAL_BITS: i32 = 1 << 6;
+pub const TOTAL_BITS: i32 = 1 << 6;
 
 //bits 分配器
 pub struct BitsAllocator {

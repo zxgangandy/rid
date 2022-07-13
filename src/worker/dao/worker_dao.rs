@@ -12,7 +12,7 @@ pub struct WorkerDao {
 impl WorkerDao {
     pub fn new(RB: Arc<Rbatis>) -> Self {
         WorkerDao {
-            RB: Arc::clone(&RB)
+            RB
         }
     }
 

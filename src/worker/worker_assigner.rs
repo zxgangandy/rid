@@ -27,8 +27,8 @@ pub struct Assigner {
 
 impl Assigner {
     // new_worker_id_assigner create worker id assigner instance
-    pub fn new(config:  rid_config::DefaultUidConfig, RB: Rbatis) -> Self {
-        let worker_node_service = worker_service::WorkerService::new(Arc::new(RB));
+    pub fn new(config:  rid_config::DefaultUidConfig, RB: Arc<Rbatis>) -> Self {
+        let worker_node_service = worker_service::WorkerService::new(Arc::clone(&RB));
         Assigner { worker_node_service, config }
     }
 

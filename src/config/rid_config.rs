@@ -28,7 +28,6 @@ pub trait  UidConfig {
 // DefaultUidConfig the default uid configure
 #[derive(Clone, Debug)]
 pub struct DefaultUidConfig{
-    //db:                 Arc<Rbatis>, // db handler
     port:               String ,  // app port
     time_bits:           i32 ,  // time bits
     worker_bits:         i32 ,  // worker bits
@@ -40,7 +39,7 @@ pub struct DefaultUidConfig{
 
 impl DefaultUidConfig {
     // New create a default uid configure instance
-    fn new(db: Arc<Rbatis>, port: String)-> Self {
+    fn new(port: String)-> Self {
         DefaultUidConfig{
             port                 ,
             time_bits:           30,
@@ -55,11 +54,6 @@ impl DefaultUidConfig {
 
 
 impl UidConfig for DefaultUidConfig {
-
-    // fn get_db(&self) -> Arc<Rbatis> {
-    //     return Arc::clone(&self.db)
-    // }
-
     fn get_port(&self) -> String {
         return self.port.clone()
     }

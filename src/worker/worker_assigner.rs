@@ -5,8 +5,6 @@ use std::env;
 use rbatis::rbatis::Rbatis;
 
 use crate::worker::service::worker_service;
-use crate::config::rid_config;
-use crate::config::rid_config::UidConfig;
 use crate::worker::model::worker_node;
 
 
@@ -20,20 +18,20 @@ const COMPUTER_NAME: &str         = "COMPUTERNAME";         //computer name
 
 pub struct Assigner {
     worker_node_service: worker_service::WorkerService,
-    config: rid_config::DefaultUidConfig,
+    port: String,
 }
 
 
 
 impl Assigner {
     // new_worker_id_assigner create worker id assigner instance
-    pub fn new(config:  rid_config::DefaultUidConfig, RB: Arc<Rbatis>) -> Self {
+    pub fn new(port: String, RB: Arc<Rbatis>) -> Self {
         let worker_node_service = worker_service::WorkerService::new(Arc::clone(&RB));
-        Assigner { worker_node_service, config }
+        Assigner { worker_node_service, port }
     }
 
     pub async fn assign_worker_id(&self) -> i64 {
-        let new_node = Assigner::build_worker_node(self.config.get_port());
+        let new_node = Assigner::build_worker_node(&self.port);
         let node = self.worker_node_service.get_by_hostname(
             &new_node.clone().host_name.unwrap()
         ).await;
@@ -46,7 +44,7 @@ impl Assigner {
         return new_node.id.unwrap() as i64;
     }
 
-    fn build_worker_node(port: String) -> worker_node::WorkerNode {
+    fn build_worker_node(port: &String) -> worker_node::WorkerNode {
         let now = NaiveDateTime::now().into();
         let mut node = worker_node::WorkerNode {
             id: None,
@@ -66,7 +64,7 @@ impl Assigner {
         } else {
             node.worker_type = Some(ACTUAL);
             node.host_name = Assigner::get_computer_hostname();
-            node.port = Some(port);
+            node.port = Some(port.clone());
         }
 
         return node

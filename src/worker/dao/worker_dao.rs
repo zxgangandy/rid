@@ -1,18 +1,19 @@
-
+use std::sync::Arc;
 use rbatis::crud::{CRUD};
 use rbatis::rbatis::Rbatis;
-use super::RB;
-use crate::model::miner::Miners;
+
 use crate::worker::model::worker_node;
 use rbatis::Error;
 
 pub struct WorkerDao {
-    RB: Rbatis,
+    RB: Arc<Rbatis>,
 }
 
 impl WorkerDao {
-    pub fn new(RB: Rbatis) -> Self {
-        WorkerDao {RB}
+    pub fn new(RB: Arc<Rbatis>) -> Self {
+        WorkerDao {
+            RB: Arc::clone(&RB)
+        }
     }
 
     pub async fn save(&self, w: worker_node::WorkerNode) -> Result<bool, Error> {
@@ -26,7 +27,7 @@ impl WorkerDao {
             return Ok(false);
         }
 
-        Err(item_res.unwrap_err())
+        Err(save_res.unwrap_err())
     }
 
     pub async fn get_by_hostname(&self, host_name: &String) -> Result<worker_node::WorkerNode, Error> {

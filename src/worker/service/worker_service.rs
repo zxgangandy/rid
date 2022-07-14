@@ -14,7 +14,7 @@ impl WorkerService {
         Self { worker_dao: worker_dao::WorkerDao::new(Arc::clone(&RB))  }
     }
 
-    pub async fn save(&self, w: worker_node::WorkerNode) -> Result<bool, Error> {
+    pub async fn save(&self, w: worker_node::WorkerNode) -> Result<i64, Error> {
         return self.worker_dao.save(w).await;
     }
 

@@ -16,15 +16,15 @@ impl WorkerDao {
         }
     }
 
-    pub async fn save(&self, w: worker_node::WorkerNode) -> Result<bool, Error> {
+    pub async fn save(&self, w: worker_node::WorkerNode) -> Result<i64, Error> {
         let save_res = self.RB.save(&w, &[]).await;
         if let Ok(res) = save_res {
             let affect_row = res.rows_affected;
             if affect_row > 0 {
-                return Ok(true);
+                return Ok(res.last_insert_id.unwrap());
             }
 
-            return Ok(false);
+            return Ok(0);
         }
 
         Err(save_res.unwrap_err())

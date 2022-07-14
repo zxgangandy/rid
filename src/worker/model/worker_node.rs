@@ -1,4 +1,5 @@
-use chrono::NaiveDateTime;
+use chrono::{DateTime, NaiveDateTime};
+use chrono::Date;
 use serde::{Deserialize, Serialize};
 
 #[crud_table(table_name:worker_node)]
@@ -8,7 +9,6 @@ pub struct WorkerNode{
     pub host_name: Option<String>,
     pub port: Option<String>,
     pub worker_type: Option<i8>,
-    pub launch_date: Option<NaiveDateTime>,
     pub modified: Option<NaiveDateTime>,
     pub created: Option<NaiveDateTime>,
 }

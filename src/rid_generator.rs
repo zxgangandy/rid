@@ -6,7 +6,7 @@ use crate::worker::worker_assigner;
 use crate::bits_allocator;
 use crate::config::rid_config;
 
-struct UidGenerator {
+pub struct UidGenerator {
     worker_id_assigner: worker_assigner::Assigner,
     bits_allocator:  bits_allocator::BitsAllocator,
     config:          rid_config::UidConfig,

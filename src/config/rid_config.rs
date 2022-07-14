@@ -13,7 +13,7 @@ pub struct UidConfig {
 
 impl UidConfig {
     // New create a default uid configure instance
-    fn new(port: String)-> Self {
+    pub fn new(port: String)-> Self {
         UidConfig {
             port                 ,
             time_bits:           30,

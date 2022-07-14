@@ -30,27 +30,25 @@ impl Assigner {
     pub async fn assign_worker_id(&self) -> i64 {
         let new_node = Assigner::build_worker_node(&self.port);
         let node = self.worker_node_service.get_by_hostname(
-            &new_node.clone().host_name.unwrap()
+            &new_node.host_name.clone().unwrap()
         ).await;
 
         if let Ok(res) = node {
             return res.id.unwrap() as i64;
         }
 
-        let _= self.worker_node_service.save(new_node.clone()).await;
-        return new_node.id.unwrap() as i64;
+        let result = self.worker_node_service.save(new_node).await;
+        return result.unwrap();
     }
 
     fn build_worker_node(port: &String) -> worker_node::WorkerNode {
-        let now = NaiveDateTime::now().into();
         let mut node = worker_node::WorkerNode {
             id: None,
             host_name: None,
             port: Some(port.clone()),
             worker_type: None,
-            launch_date: now,
-            modified: now,
-            created: now
+            modified: NaiveDateTime::now().into(),
+            created: NaiveDateTime::now().into()
         };
 
         let host_var = env::var(ENV_KEY_HOST);

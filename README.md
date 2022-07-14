@@ -1,7 +1,6 @@
 # rid
-[![Test Status](https://github.com/zxgangandy/rid/workflows/Tests/badge.svg?event=push)](https://github.com/zxgangandy/rid/actions)
-[![Crate](https://img.shields.io/crates/v/rand.svg)](https://crates.io/crates/rust-distributed-id)
-[![API](https://docs.rs/rand/badge.svg)](https://docs.rs/rust-distributed-id)
+[![Crate](https://img.shields.io/crates/v/rust-distributed-id.svg)](https://crates.io/crates/rust-distributed-id)
+[![API](https://docs.rs/rust-distributed-id/badge.svg)](https://docs.rs/rust-distributed-id)
 A practical distributed id generator by rust
 
 [Snowflake](https://github.com/twitter/snowflake) based unique ID generator. It

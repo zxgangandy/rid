@@ -26,7 +26,6 @@ CREATE TABLE `worker_node` (
   `host_name` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT 'host name',
   `port` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT 'port',
   `worker_type` int NOT NULL COMMENT 'node type: CONTAINER(1), ACTUAL(2), FAKE(3)',
-  `launch_date` date NOT NULL COMMENT 'launch date',
   `modified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'modified time',
   `created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'created time',
   PRIMARY KEY (`id`),

@@ -22,10 +22,9 @@ mod tests {
     }
 
     #[test]
-    fn default_config_test() {
+    fn gid_with_default_config() {
         async_std::task::block_on(async {
             let mut config = rid_config::UidConfig::new("5000".to_string());
-
             let RB: Rbatis = Rbatis::new();
             RB.link("mysql://root:root@127.0.0.1:3306/test")
                 .await
@@ -39,14 +38,12 @@ mod tests {
             }
 
             let end = Local::now().timestamp_millis();
-
             println!("{}", end-start);
         });
-
     }
 
     #[test]
-    fn custom_config_test() {
+    fn gid_with_custom_config() {
         async_std::task::block_on(async {
             let mut config = rid_config::UidConfig::new("5000".to_string());
             config.worker_bits = 10;
@@ -65,9 +62,8 @@ mod tests {
             }
 
             let end = Local::now().timestamp_millis();
-
             println!("{}", end-start);
         });
-
     }
+
 }

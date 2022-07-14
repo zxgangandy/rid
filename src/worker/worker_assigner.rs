@@ -22,8 +22,8 @@ pub struct Assigner {
 
 impl Assigner {
     // new_worker_id_assigner create worker id assigner instance
-    pub fn new(port: String, RB: Arc<Rbatis>) -> Self {
-        let worker_node_service = worker_service::WorkerService::new(Arc::clone(&RB));
+    pub fn new(port: String, rb: Arc<Rbatis>) -> Self {
+        let worker_node_service = worker_service::WorkerService::new(Arc::clone(&rb));
         Assigner { worker_node_service, port }
     }
 

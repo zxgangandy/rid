@@ -7,7 +7,6 @@ use crate::bits_allocator;
 use crate::config::rid_config;
 
 pub struct UidGenerator {
-    worker_id_assigner: worker_assigner::Assigner,
     bits_allocator:  bits_allocator::BitsAllocator,
     config:          rid_config::UidConfig,
     worker_id:       i64,
@@ -35,7 +34,6 @@ impl UidGenerator {
         }
 
         return UidGenerator {
-            worker_id_assigner: id_assigner,
             bits_allocator: allocator,
             config: new_config,
             worker_id,
@@ -59,7 +57,7 @@ impl UidGenerator {
     // | sign |     delta seconds    | worker node id | sequence  |
     // +------+----------------------+----------------+-----------+
     //   1bit          30bits              7bits         13bits
-    fn parse_uid(&self, uid: i64) -> String {
+    pub fn parse_uid(&self, uid: i64) -> String {
         let total_bits = bits_allocator::TOTAL_BITS;
         let sign_bits = self.bits_allocator.sign_bits;
         let timestamp_bits = self.bits_allocator.timestamp_bits;

@@ -1,5 +1,4 @@
-use chrono::{DateTime, NaiveDateTime};
-use chrono::Date;
+use chrono::NaiveDateTime;
 use serde::{Deserialize, Serialize};
 
 #[crud_table(table_name:worker_node)]

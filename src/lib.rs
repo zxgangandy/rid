@@ -24,17 +24,17 @@ mod tests {
     #[test]
     fn gid_with_default_config() {
         async_std::task::block_on(async {
-            let mut config = rid_config::UidConfig::new("5000".to_string());
-            let RB: Rbatis = Rbatis::new();
-            RB.link("mysql://root:root@127.0.0.1:3306/test")
+            let config = rid_config::UidConfig::new("5000".to_string());
+            let rb: Rbatis = Rbatis::new();
+            rb.link("mysql://root:root@127.0.0.1:3306/test")
                 .await
                 .expect("Couldn't open database");
-            let mut idg = rid_generator::UidGenerator::new(&config, Arc::new(RB)).await;
+            let mut idg = rid_generator::UidGenerator::new(&config, Arc::new(rb)).await;
 
             let start = Local::now().timestamp_millis();
             for _ in 1..10000 {
                 //println!("{}", &idg.get_uid());
-                let a = &idg.get_uid();
+                let _ = &idg.get_uid();
             }
 
             let end = Local::now().timestamp_millis();
@@ -49,16 +49,16 @@ mod tests {
             config.worker_bits = 10;
             config.seq_bits = 23;
 
-            let RB: Rbatis = Rbatis::new();
-            RB.link("mysql://root:root@127.0.0.1:3306/test")
+            let rb: Rbatis = Rbatis::new();
+            rb.link("mysql://root:root@127.0.0.1:3306/test")
                 .await
                 .expect("Couldn't open database");
-            let mut idg = rid_generator::UidGenerator::new(&config, Arc::new(RB)).await;
+            let mut idg = rid_generator::UidGenerator::new(&config, Arc::new(rb)).await;
 
             let start = Local::now().timestamp_millis();
             for _ in 1..1000000 {
                 //println!("{}", &idg.get_uid());
-                let a = &idg.get_uid();
+                let _ = &idg.get_uid();
             }
 
             let end = Local::now().timestamp_millis();

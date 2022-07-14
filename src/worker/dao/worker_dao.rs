@@ -6,18 +6,18 @@ use crate::worker::model::worker_node;
 use rbatis::Error;
 
 pub struct WorkerDao {
-    RB: Arc<Rbatis>,
+    rb: Arc<Rbatis>,
 }
 
 impl WorkerDao {
-    pub fn new(RB: Arc<Rbatis>) -> Self {
+    pub fn new(rb: Arc<Rbatis>) -> Self {
         WorkerDao {
-            RB
+            rb
         }
     }
 
     pub async fn save(&self, w: worker_node::WorkerNode) -> Result<i64, Error> {
-        let save_res = self.RB.save(&w, &[]).await;
+        let save_res = self.rb.save(&w, &[]).await;
         if let Ok(res) = save_res {
             let affect_row = res.rows_affected;
             if affect_row > 0 {
@@ -31,8 +31,8 @@ impl WorkerDao {
     }
 
     pub async fn get_by_hostname(&self, host_name: &String) -> Result<worker_node::WorkerNode, Error> {
-        let w = self.RB.new_wrapper().eq("host_name", host_name);
-        let item_res = self.RB.fetch_by_wrapper::<worker_node::WorkerNode>(w).await;
+        let w = self.rb.new_wrapper().eq("host_name", host_name);
+        let item_res = self.rb.fetch_by_wrapper::<worker_node::WorkerNode>(w).await;
         if let Ok(res) = item_res {
             return Ok(res);
         }

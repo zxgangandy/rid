@@ -10,8 +10,8 @@ pub struct WorkerService {
 }
 
 impl WorkerService {
-    pub fn new(RB: Arc<Rbatis>) -> Self {
-        Self { worker_dao: worker_dao::WorkerDao::new(Arc::clone(&RB))  }
+    pub fn new(rb: Arc<Rbatis>) -> Self {
+        Self { worker_dao: worker_dao::WorkerDao::new(Arc::clone(&rb))  }
     }
 
     pub async fn save(&self, w: worker_node::WorkerNode) -> Result<i64, Error> {

@@ -1,5 +1,5 @@
 # rid
-A pratical distributed id generator by rust
+A practical distributed id generator by rust
 
 [Snowflake](https://github.com/twitter/snowflake) based unique ID generator. It
 works as a component, and allows users to override workId bits and initialization strategy. As a result, it is much more
@@ -114,4 +114,4 @@ for _ in 1..1000000 {
 
 
 ## License
-Gid is [MIT licensed](./LICENSE).
+rid is [MIT licensed](./LICENSE).

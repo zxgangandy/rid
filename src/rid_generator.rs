@@ -19,7 +19,10 @@ impl UidGenerator {
     //New create the default uid generator instance
     pub  async fn new(config: &rid_config::UidConfig, rb: Arc<Rbatis>) -> Self {
         let new_config = config.clone();
-        let id_assigner = worker_assigner::Assigner::new(new_config.port.clone(), Arc::clone(&rb));
+        let id_assigner = worker_assigner::Assigner::new(
+            new_config.port.clone(),
+            Arc::clone(&rb)
+        );
         let allocator = bits_allocator::BitsAllocator::new(
             config.time_bits,
             config.worker_bits,
@@ -85,7 +88,7 @@ impl UidGenerator {
 
         if current_second < *last_second {
             if !enable_backward {
-                panic!("Clock moved backwards. Refusing seconds");
+                panic!("Clock moved backwards. But backward not enabled");
             }
 
             let refused_seconds = *last_second - current_second;
@@ -104,15 +107,20 @@ impl UidGenerator {
             }
         } else {
             // At the different second, sequence restart from zero
-            self.sequence = 0;
+            self.sequence = 0i64;
         }
 
         *last_second = current_second;
 
         // Allocate bits for uid
-        return self.bits_allocator.allocate(current_second - epoch_seconds, self.worker_id, self.sequence);
+        self.bits_allocator.allocate(
+            current_second - epoch_seconds,
+            self.worker_id,
+            self.sequence
+        )
     }
 
+    #[inline(always)]
     fn get_current_second(&self, epoch_seconds: i64) -> i64 {
         let current_seconds = SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs() as i64;
         if current_seconds - epoch_seconds > self.bits_allocator.max_delta_seconds {
@@ -122,6 +130,7 @@ impl UidGenerator {
         return current_seconds
     }
 
+    #[inline(always)]
     fn get_next_second(&self, last_timestamp: i64, epoch_seconds: i64) ->i64 {
         let mut timestamp = self.get_current_second(epoch_seconds);
 

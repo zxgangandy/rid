@@ -7,7 +7,6 @@ use rbatis::rbatis::Rbatis;
 use crate::worker::service::worker_service;
 use crate::worker::model::worker_node;
 
-
 const CONTAINER: i8               = 1; // container type
 const ACTUAL: i8                  = 2; // actual type
 
@@ -20,8 +19,6 @@ pub struct Assigner {
     worker_node_service: worker_service::WorkerService,
     port: String,
 }
-
-
 
 impl Assigner {
     // new_worker_id_assigner create worker id assigner instance

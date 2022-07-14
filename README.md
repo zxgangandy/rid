@@ -1,9 +1,9 @@
 # rid
 [![Crate](https://img.shields.io/crates/v/rust-distributed-id.svg)](https://crates.io/crates/rust-distributed-id)
 [![API](https://docs.rs/rust-distributed-id/badge.svg)](https://docs.rs/rust-distributed-id)
+[![License](https://img.shields.io/github/license/zxgangandy/gid?style=flat-square)](/LICENSE)
 
-A practical distributed id generator by rust
-
+A practical distributed id generator by rust,
 [Snowflake](https://github.com/twitter/snowflake) based unique ID generator. It
 works as a component, and allows users to override workId bits and initialization strategy. As a result, it is much more
 suitable for virtualization environment, such as [docker](https://www.docker.com/).

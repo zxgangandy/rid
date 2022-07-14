@@ -19,21 +19,18 @@ pub struct BitsAllocator {
 }
 
 
-
-
 impl BitsAllocator {
     //构建一个bits管理器实例
     pub fn new(timestamp_bits: i32, worker_id_bits: i32, sequence_bits: i32) -> Self {
-        let signBits: i32 = 1;
+        let sign_bits: i32 = 1;
+        let allocate_total_bits = sign_bits + timestamp_bits + worker_id_bits + sequence_bits;
 
-        let allocateTotalBits = signBits + timestamp_bits + worker_id_bits + sequence_bits;
-
-        if allocateTotalBits > TOTAL_BITS {
-            panic!("allocate larger than 64 bits")
+        if allocate_total_bits > TOTAL_BITS {
+            panic!("allocate larger than 64 bits");
         }
 
-        return BitsAllocator {
-            sign_bits: signBits,
+        BitsAllocator {
+            sign_bits,
             timestamp_bits,
             worker_id_bits,
             sequence_bits,
@@ -46,7 +43,7 @@ impl BitsAllocator {
     }
 
     pub fn allocate(&self, delta_seconds: i64, worker_id: i64, sequence: i64) -> i64 {
-        return (delta_seconds << self.timestamp_shift) | (worker_id << self.worker_id_shift) | sequence
+        (delta_seconds << self.timestamp_shift) | (worker_id << self.worker_id_shift) | sequence
     }
 }
 

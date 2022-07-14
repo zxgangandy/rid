@@ -5,7 +5,6 @@ use rbatis::rbatis::Rbatis;
 use crate::worker::worker_assigner;
 use crate::bits_allocator;
 use crate::config::rid_config;
-//use crate::config::rid_config::UidConfig;
 
 struct UidGenerator {
     worker_id_assigner: worker_assigner::Assigner,
@@ -18,13 +17,13 @@ struct UidGenerator {
 
 impl UidGenerator {
     //New create the default uid generator instance
-    pub  async fn new(config: rid_config::UidConfig, rb: Arc<Rbatis>) -> Self {
+    pub  async fn new(config: &rid_config::UidConfig, rb: Arc<Rbatis>) -> Self {
         let new_config = config.clone();
-        let id_assigner = worker_assigner::Assigner::new(new_config.port, Arc::clone(&rb));
+        let id_assigner = worker_assigner::Assigner::new(new_config.port.clone(), Arc::clone(&rb));
         let allocator = bits_allocator::BitsAllocator::new(
-            new_config.time_bits,
-            new_config.worker_bits,
-            new_config.seq_bits
+            config.time_bits,
+            config.worker_bits,
+            config.seq_bits
         );
         let mut worker_id = id_assigner.assign_worker_id().await;
 
@@ -35,7 +34,7 @@ impl UidGenerator {
         return UidGenerator {
             worker_id_assigner: id_assigner,
             bits_allocator: allocator,
-            config,
+            config: new_config,
             worker_id,
             last_second: Arc::new(Mutex::new(0)),
             sequence: 0,
@@ -64,26 +63,32 @@ impl UidGenerator {
         let worker_id_bits = self.bits_allocator.worker_id_bits;
         let sequence_bits = self.bits_allocator.sequence_bits;
 
-        // parse UID
         let sequence = (uid << (total_bits - sequence_bits)) >> (total_bits - sequence_bits);
         let worker_id = (uid << (timestamp_bits + sign_bits)) >> (total_bits - worker_id_bits);
         let delta_seconds = uid >> (worker_id_bits + sequence_bits);
 
         // format as string
-        return format!(r#"{{"uid\":\"{}\",\"timestamp\":\"{}\",\"worker_id\":\"{}\",\"sequence\":\"{}\"}}"#,
-                       uid, self.config.epoch_seconds + delta_seconds, worker_id, sequence);
+        return format!(
+            r#"{{"uid\":\"{}\",\"timestamp\":\"{}\",\"worker_id\":\"{}\",\"sequence\":\"{}\"}}"#,
+            uid, self.config.epoch_seconds + delta_seconds, worker_id, sequence
+        );
     }
 
-    fn next_id(& mut self, epoch_seconds: i64, max_backward_seconds: i64, enable_backward: bool) -> i64 {
+    fn next_id(
+        & mut self,
+        epoch_seconds: i64,
+        max_backward_seconds: i64,
+        enable_backward: bool
+    ) -> i64 {
         let mut last_second = self.last_second.lock().unwrap();
         let mut current_second = self.get_current_second(epoch_seconds);
 
         if current_second < *last_second {
-            let refused_seconds = *last_second - current_second;
             if !enable_backward {
                 panic!("Clock moved backwards. Refusing seconds");
             }
 
+            let refused_seconds = *last_second - current_second;
             if refused_seconds <= max_backward_seconds {
                 while current_second < *last_second {
                     current_second = self.get_current_second(epoch_seconds)
@@ -91,10 +96,7 @@ impl UidGenerator {
             } else {
                 panic!("Clock moved backwards. Refused seconds bigger than max backward seconds")
             }
-        }
-
-        // At the same second, increase sequence
-        if current_second == *last_second {
+        } else if current_second == *last_second { // At the same second, increase sequence
             self.sequence = (self.sequence + 1) & self.bits_allocator.max_sequence;
             // Exceed the max sequence, we wait the next second to generate uid
             if self.sequence == 0 {
@@ -114,7 +116,7 @@ impl UidGenerator {
     fn get_current_second(&self, epoch_seconds: i64) -> i64 {
         let current_seconds = SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs() as i64;
         if current_seconds - epoch_seconds > self.bits_allocator.max_delta_seconds {
-            panic!("Timestamp bits is exhausted. Refusing UID generate.")
+            panic!("Timestamp bits is exhausted. Refusing uid generation.")
         }
 
         return current_seconds

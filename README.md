@@ -62,7 +62,9 @@ CREATE TABLE `worker_node` (
 ```
 
 ### Step3: Install Lib
-
+Add this to your Cargo.toml:
+[dependencies]
+rust-distributed-id = "0.1.1"
 
 ### Step4: Usage
 

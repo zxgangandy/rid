@@ -27,3 +27,86 @@ The next 20 bits, represents the worker node id, maximum value will be 1.04 mill
 
 sequence (13 bits)
 the last 13 bits, represents sequence within the one second, maximum is 8192 per second（per server）by default.
+
+## Features
+- light and easy to use
+- distributed id generator at local instead of by service or rpc
+- worker id persistence solution (in database like mysql instead of cache storage)
+- support clock moved backwards(can be disabled)
+- support id length customization lower than 64 bits
+
+
+## Design
+- refer to baidu [uid-generator](https://github.com/baidu/uid-generator)
+
+
+## Quick  Start
+
+### Step1: Install rust, Mysql
+
+### Step2: Create table worker_node
+
+```sql
+DROP TABLE IF EXISTS `worker_node`;
+CREATE TABLE `worker_node` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT 'auto increment id',
+  `host_name` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT 'host name',
+  `port` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT 'port',
+  `type` int NOT NULL COMMENT 'node type: CONTAINER(1), ACTUAL(2), FAKE(3)',
+  `modified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'modified time',
+  `created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'created time',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `UNIQ_IDX_HOST_PORT` (`host_name`,`port`) USING BTREE COMMENT 'host和端口的唯一索引'
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='DB WorkerID Assigner for UID Generator';
+
+```
+
+### Step3: Install Lib
+
+
+### Step4: Usage
+
+```rust
+let config = rid_config::UidConfig::new("5000".to_string());
+let rb: Rbatis = Rbatis::new();
+rb.link("mysql://root:root@127.0.0.1:3306/test")
+.await
+.expect("Couldn't open database");
+let mut idg = rid_generator::UidGenerator::new(&config, Arc::new(rb)).await;
+
+let start = Local::now().timestamp_millis();
+for _ in 1..10000 {
+    //println!("{}", &idg.get_uid());
+    let _ = &idg.get_uid();
+}
+
+```
+
+## Customization
+
+Change the time_bits, worker_bits, seq_bits of 'UidConfig' to get your customer uid, especially shorter uid.
+
+```rust
+let mut config = rid_config::UidConfig::new("5000".to_string());
+config.worker_bits = 10;
+config.seq_bits = 23;
+
+let rb: Rbatis = Rbatis::new();
+rb.link("mysql://root:root@127.0.0.1:3306/test")
+.await
+.expect("Couldn't open database");
+let mut idg = rid_generator::UidGenerator::new(&config, Arc::new(rb)).await;
+
+let start = Local::now().timestamp_millis();
+for _ in 1..1000000 {
+    //println!("{}", &idg.get_uid());
+    let _ = &idg.get_uid();
+}
+
+```
+
+## ChangeLog
+
+
+## License
+Gid is [MIT licensed](./LICENSE).

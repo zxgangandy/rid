@@ -1,10 +1,15 @@
 [package]
-name = "rid"
+name = "rust-distributed-id"
 license = "MIT"
 version = "0.1.0"
 edition = "2021"
 authors = ["zxgangandy <zxgangandy@gmail.com>"]
 description = "Rust version of the Twitter snowflake algorithm."
+repository = "https://github.com/zxgangandy/rid.git"
+documentation = "https://docs.rs/rs-snowflake"
+readme = "README.md"
+keywords = [ "snowflake", "distributed-id"]
+categories = ["development-tools", "data-structures", "algorithms"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 

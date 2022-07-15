@@ -34,11 +34,28 @@ mod tests {
             let start = Local::now().timestamp_millis();
             for _ in 0..10000 {
                 //println!("{}", &idg.get_uid());
-                let _ = &idg.get_uid();
+                let _ = idg.get_uid();
             }
 
             let end = Local::now().timestamp_millis();
             println!("{}", end-start);
+        });
+    }
+
+    #[test]
+    fn pid_with_default_config() {
+        async_std::task::block_on(async {
+            let config = rid_config::UidConfig::new("5000".to_string());
+            let rb: Rbatis = Rbatis::new();
+            rb.link("mysql://root:root@127.0.0.1:3306/test")
+                .await
+                .expect("Couldn't open database");
+            let mut idg = rid_generator::UidGenerator::new(&config, Arc::new(rb)).await;
+
+            let rid = idg.get_uid();
+            println!("{}", rid);
+            let pid = idg.parse_uid(rid);
+            println!("{}", pid);
         });
     }
 
@@ -58,7 +75,7 @@ mod tests {
             let start = Local::now().timestamp_millis();
             for _ in 0..10000000 {
                 //println!("{}", &idg.get_uid());
-                let _ = &idg.get_uid();
+                let _ = idg.get_uid();
             }
 
             let end = Local::now().timestamp_millis();

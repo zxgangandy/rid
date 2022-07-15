@@ -7,6 +7,7 @@ pub struct BitsAllocator {
     pub timestamp_bits: i32,
     pub worker_id_bits:  i32,
     pub sequence_bits: i32,
+    pub allocate_total_bits: i32,
 
     // Max value for workId & sequence
     pub max_delta_seconds: i64,
@@ -39,6 +40,7 @@ impl BitsAllocator {
             max_sequence: -1 ^ (-1 << sequence_bits),
             timestamp_shift: worker_id_bits + sequence_bits,
             worker_id_shift: sequence_bits,
+            allocate_total_bits
         }
     }
 

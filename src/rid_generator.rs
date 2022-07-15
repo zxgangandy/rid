@@ -45,7 +45,7 @@ impl UidGenerator {
     // get_uid generate the unique id
     pub fn get_uid(& mut self) -> i64 {
         let c = &self.config;
-        return self.next_id(c.epoch_seconds, c.max_backward_seconds,c.is_enable_backward);
+        return self.next_id(c.epoch_seconds, c.max_backward_seconds,c.enable_backward);
     }
 
     // parse_uid parse the generated unique id then get the meta information
@@ -59,14 +59,16 @@ impl UidGenerator {
         let timestamp_bits = self.bits_allocator.timestamp_bits;
         let worker_id_bits = self.bits_allocator.worker_id_bits;
         let sequence_bits = self.bits_allocator.sequence_bits;
+        let allocate_total_bits = self.bits_allocator.allocate_total_bits;
 
         let sequence = (uid << (total_bits - sequence_bits)) >> (total_bits - sequence_bits);
-        let worker_id = (uid << (timestamp_bits + sign_bits)) >> (total_bits - worker_id_bits);
+        let worker_id = (uid << (timestamp_bits + sign_bits + total_bits - allocate_total_bits))
+            >> (total_bits - worker_id_bits);
         let delta_seconds = uid >> (worker_id_bits + sequence_bits);
 
         // format as string
         return format!(
-            r#"{{"uid\":\"{}\",\"timestamp\":\"{}\",\"worker_id\":\"{}\",\"sequence\":\"{}\"}}"#,
+            r#"{{\"uid\":\"{}\",\"timestamp\":\"{}\",\"worker_id\":\"{}\",\"sequence\":\"{}\"}}"#,
             uid, self.config.epoch_seconds + delta_seconds, worker_id, sequence
         );
     }

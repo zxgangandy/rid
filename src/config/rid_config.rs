@@ -2,13 +2,13 @@
 // DefaultUidConfig the default uid configure
 #[derive(Clone, Debug)]
 pub struct UidConfig {
-    pub port:               String ,  // app port
-    pub time_bits:           i32 ,  // time bits
-    pub worker_bits:         i32 ,  // worker bits
-    pub seq_bits:            i32 ,  // sequence bits
-    pub epoch_seconds:       i64 ,   // epoch seconds
+    pub port:                 String ,  // application server port
+    pub time_bits:            i32 ,  // time bits
+    pub worker_bits:          i32 ,  // worker bits
+    pub seq_bits:             i32 ,  // sequence bits
+    pub epoch_seconds:        i64 ,   // epoch seconds
     pub max_backward_seconds: i64 ,   // max backward seconds
-    pub is_enable_backward:   bool,     // enable clock backward
+    pub enable_backward:      bool,     // enable clock backward
 }
 
 impl UidConfig {
@@ -21,7 +21,7 @@ impl UidConfig {
             seq_bits:            13,
             epoch_seconds:       1550592000000 / 1000,
             max_backward_seconds: 1,
-            is_enable_backward:   true,
+            enable_backward:   true,
         }
     }
 }

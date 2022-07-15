@@ -69,7 +69,7 @@ Add this to your Cargo.toml:
 
 ``` toml
 [dependencies]
-rust-distributed-id = "0.1.1"
+rust-distributed-id = "0.1.2"
 ```
 
 ### Step4: Usage
@@ -85,7 +85,7 @@ let mut idg = rid_generator::UidGenerator::new(&config, Arc::new(rb)).await;
 let start = Local::now().timestamp_millis();
 for _ in 1..10000 {
     //println!("{}", &idg.get_uid());
-    let _ = &idg.get_uid();
+    let _ = idg.get_uid();
 }
 
 ```
@@ -108,7 +108,7 @@ let mut idg = rid_generator::UidGenerator::new(&config, Arc::new(rb)).await;
 let start = Local::now().timestamp_millis();
 for _ in 1..1000000 {
     //println!("{}", &idg.get_uid());
-    let _ = &idg.get_uid();
+    let _ = idg.get_uid();
 }
 
 ```

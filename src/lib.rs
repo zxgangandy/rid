@@ -32,7 +32,7 @@ mod tests {
             let mut idg = rid_generator::UidGenerator::new(&config, Arc::new(rb)).await;
 
             let start = Local::now().timestamp_millis();
-            for _ in 1..10000 {
+            for _ in 0..10000 {
                 //println!("{}", &idg.get_uid());
                 let _ = &idg.get_uid();
             }
@@ -56,7 +56,7 @@ mod tests {
             let mut idg = rid_generator::UidGenerator::new(&config, Arc::new(rb)).await;
 
             let start = Local::now().timestamp_millis();
-            for _ in 1..1000000 {
+            for _ in 0..10000000 {
                 //println!("{}", &idg.get_uid());
                 let _ = &idg.get_uid();
             }

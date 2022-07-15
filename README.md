@@ -55,7 +55,7 @@ CREATE TABLE `worker_node` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT 'auto increment id',
   `host_name` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT 'host name',
   `port` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT 'port',
-  `type` int NOT NULL COMMENT 'node type: CONTAINER(1), ACTUAL(2), FAKE(3)',
+  `worker_type` int NOT NULL COMMENT 'node type: CONTAINER(1), ACTUAL(2), FAKE(3)',
   `modified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'modified time',
   `created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'created time',
   PRIMARY KEY (`id`),

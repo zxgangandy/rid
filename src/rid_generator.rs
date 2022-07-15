@@ -45,11 +45,7 @@ impl UidGenerator {
     // get_uid generate the unique id
     pub fn get_uid(& mut self) -> i64 {
         let c = &self.config;
-        return self.next_id(
-            c.epoch_seconds,
-            c.max_backward_seconds,
-            c.is_enable_backward
-        )
+        return self.next_id(c.epoch_seconds, c.max_backward_seconds,c.is_enable_backward);
     }
 
     // parse_uid parse the generated unique id then get the meta information

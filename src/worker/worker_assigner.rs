@@ -1,4 +1,3 @@
-use std::sync::Arc;
 use chrono::NaiveDateTime;
 use rbatis::core::value::DateTimeNow;
 use std::env;
@@ -22,8 +21,8 @@ pub struct Assigner {
 
 impl Assigner {
     // new_worker_id_assigner create worker id assigner instance
-    pub fn new(port: String, rb: Arc<Rbatis>) -> Self {
-        let worker_node_service = worker_service::WorkerService::new(Arc::clone(&rb));
+    pub fn new(port: String, rb: &'static Rbatis) -> Self {
+        let worker_node_service = worker_service::WorkerService::new(rb);
         Assigner { worker_node_service, port }
     }
 

@@ -1,4 +1,3 @@
-use std::sync::Arc;
 use rbatis::Error;
 use rbatis::rbatis::Rbatis;
 
@@ -10,8 +9,8 @@ pub struct WorkerService {
 }
 
 impl WorkerService {
-    pub fn new(rb: Arc<Rbatis>) -> Self {
-        Self { worker_dao: worker_dao::WorkerDao::new(Arc::clone(&rb))  }
+    pub fn new(rb: &'static Rbatis) -> Self {
+        Self { worker_dao: worker_dao::WorkerDao::new(rb)  }
     }
 
     pub async fn save(&self, w: worker_node::WorkerNode) -> Result<i64, Error> {

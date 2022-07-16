@@ -2,6 +2,7 @@
 pub const TOTAL_BITS: i32 = 1 << 6;
 
 //bits 分配器
+#[derive(Clone, Debug, Copy)]
 pub struct BitsAllocator {
     pub sign_bits:     i32,
     pub timestamp_bits: i32,

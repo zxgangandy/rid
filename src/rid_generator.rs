@@ -6,6 +6,7 @@ use crate::worker::worker_assigner;
 use crate::bits_allocator;
 use crate::config::rid_config;
 
+#[derive(Debug)]
 pub struct UidGenerator {
     bits_allocator:  bits_allocator::BitsAllocator,
     config:          rid_config::UidConfig,
@@ -16,12 +17,9 @@ pub struct UidGenerator {
 
 impl UidGenerator {
     //New create the default uid generator instance
-    pub  async fn new(config: &rid_config::UidConfig, rb: Arc<Rbatis>) -> Self {
+    pub  async fn new(config: &rid_config::UidConfig, rb: &'static Rbatis) -> Self {
         let new_config = config.clone();
-        let id_assigner = worker_assigner::Assigner::new(
-            new_config.port.clone(),
-            Arc::clone(&rb)
-        );
+        let id_assigner = worker_assigner::Assigner::new(new_config.port.clone(), rb);
         let allocator = bits_allocator::BitsAllocator::new(
             config.time_bits,
             config.worker_bits,

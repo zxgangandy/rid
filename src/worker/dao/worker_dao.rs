@@ -1,4 +1,3 @@
-use std::sync::Arc;
 use rbatis::crud::{CRUD};
 use rbatis::rbatis::Rbatis;
 
@@ -6,11 +5,11 @@ use crate::worker::model::worker_node;
 use rbatis::Error;
 
 pub struct WorkerDao {
-    rb: Arc<Rbatis>,
+    rb: & 'static Rbatis,
 }
 
 impl WorkerDao {
-    pub fn new(rb: Arc<Rbatis>) -> Self {
+    pub fn new(rb: & 'static Rbatis) -> Self {
         WorkerDao {
             rb
         }

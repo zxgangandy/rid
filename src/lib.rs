@@ -60,6 +60,25 @@ mod tests {
     }
 
     #[test]
+    fn pid_with_custom_config() {
+        async_std::task::block_on(async {
+            let mut config = rid_config::UidConfig::new("5000".to_string());
+            config.worker_bits = 10;
+            config.seq_bits = 23;
+            let rb: Rbatis = Rbatis::new();
+            rb.link("mysql://root:root@127.0.0.1:3306/test")
+                .await
+                .expect("Couldn't open database");
+            let mut idg = rid_generator::UidGenerator::new(&config, Arc::new(rb)).await;
+
+            let rid = idg.get_uid();
+            println!("{}", rid);
+            let pid = idg.parse_uid(rid);
+            println!("{}", pid);
+        });
+    }
+
+    #[test]
     fn gid_with_custom_config() {
         async_std::task::block_on(async {
             let mut config = rid_config::UidConfig::new("5000".to_string());

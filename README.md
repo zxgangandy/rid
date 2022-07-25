@@ -69,7 +69,7 @@ Add this to your Cargo.toml:
 
 ``` toml
 [dependencies]
-rust-distributed-id = "0.1.2"
+rust-distributed-id = "0.1.3"
 ```
 
 ### Step4: Usage
